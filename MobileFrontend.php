@@ -384,3 +384,8 @@ $wgMFEnableResourceLoader = true;
  * You can also edit the 'mobile-frontend-footer-sitename' message directly.
  */
 $wgMFTrademarkSitename = false;
+
+/**
+ * Whether or not to enable Varnish ESI support
+ */
+$wgMFUseESI = false;
