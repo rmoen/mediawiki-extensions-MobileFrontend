@@ -397,4 +397,5 @@ $wgMFUseESI = false;
  */
 $wgEsiHandlers = array(
 	'test' => function( IContextSource $context ) { echo 'Hi there, <b>world</b>!'; },
+	'mf-viewport-scalable' => "SkinMobile::viewportScalableEsiHandler",
 );

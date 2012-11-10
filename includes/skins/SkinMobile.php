@@ -5,6 +5,12 @@ class SkinMobile extends SkinMobileBase {
 	public $stylename = 'mobile';
 	public $template = 'SkinMobileTemplate';
 	private $resourceLoader;
+	private $esienabled = false;
+
+	public function __construct( ExtMobileFrontend $extMobileFrontend ) {
+		$this->setESI();
+		parent::__construct( $extMobileFrontend );
+	}
 
 	protected function prepareTemplate( OutputPage $out ) {
 		global $wgAppleTouchIcon, $wgCookiePath, $wgExtensionAssetsPath, $wgLanguageCode,
@@ -27,7 +33,7 @@ class SkinMobile extends SkinMobileBase {
 		$tpl->set( 'isBetaGroupMember', $inBeta );
 		$tpl->set( 'renderLeftMenu', $context->getForceLeftMenu() );
 		$tpl->set( 'pagetitle', $out->getHTMLTitle() );
-		$tpl->set( 'viewport-scaleable', $device['disable_zoom'] ? 'no' : 'yes' );
+		$tpl->set( 'viewportScalable', $this->prepareViewportScalableOutput() );
 		if ( $userLogin ) {
 			$tpl->set( 'title', wfMessage( 'mobile-frontend-sign-in-heading' )->text() );
 		} else {
@@ -421,6 +427,51 @@ HTML;
 		wfProfileOut( __METHOD__ );
 		return $link;
 	}
+
+	public function setESI(){
+		global $wgMFUseESI;
+		$this->esienabled = $wgMFUseESI;
+	}
+
+	/**
+	 * Generate and echo HTML necessary for enabling/disabling user-scalable viewport
+	 */
+	public static function getViewportScalableOutput() {
+		$context = MobileContext::singleton();
+		$device = $context->getDevice();
+		$viewportScalable = $device['disable_zoom'] ? 'no' : 'yes';
+		$out = "<meta name='viewport' content='initial-scale=1.0, user-scalable={$viewportScalable}'>";
+		return $out;
+	}
+
+	public static function viewportScalableEsiHandler() {
+		static::varyXDevice();
+		echo static::getViewportScalableOutput();
+	}
+
+	/**
+	 * Prepare HTML to be injected into page output for enabling/disabling user-scalable viewport
+	 *
+	 * If ESI support is enabled, this will output the appropriate esi:include tag.
+	 */
+	private function prepareViewportScalableOutput() {
+		if ( $this->esienabled ) {
+			$src = SpecialPage::getTitleFor( 'Esi', 'mf-viewport-scalable' )->getLocalURL();
+			return "<esi:include src='{$src}' />";
+		} else {
+			return static::getViewportScalableOutput();
+		}
+	}
+
+	/**
+	 * Ensures that we vary on X-Device
+	 */
+	public static function varyXDevice() {
+		$req = new RequestContext();
+		$out = $req->getOutput();
+		$out->addVaryHeader( 'X-Device' );
+		$out->sendCacheControl();
+	}
 }
 
 class SkinMobileTemplate extends BaseTemplate {
@@ -485,7 +536,8 @@ class SkinMobileTemplate extends BaseTemplate {
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<?php $this->html( 'robots' ) ?>
 		<?php $this->html( 'cssLinks' ) ?>
-		<meta name="viewport" content="initial-scale=1.0, user-scalable=<?php $this->text( 'viewport-scaleable' ) ?>">
+		<?php $this->html( 'viewportScalable' ) ?>
+
 		<?php $this->html( 'touchIcon' ) ?>
 		<script type="text/javascript">
 			var _mwStart = +new Date;
