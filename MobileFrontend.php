@@ -48,6 +48,7 @@ $autoloadClasses = array (
 	'ApiParseExtender' => 'api/ApiParseExtender',
 	'ApiQueryExtracts' => 'api/ApiQueryExtracts',
 
+	'SpecialEsi' => 'specials/SpecialEsi',
 	'SpecialMobileFeedback' => 'specials/SpecialMobileFeedback',
 	'SpecialMobileOptions' => 'specials/SpecialMobileOptions',
 	'SpecialMobileMenu' => 'specials/SpecialMobileMenu',
@@ -80,6 +81,7 @@ $wgHooks['OpenSearchXml'][] = 'ApiQueryExtracts::onOpenSearchXml';
 $wgSpecialPages['MobileFeedback'] = 'SpecialMobileFeedback';
 $wgSpecialPages['MobileOptions'] = 'SpecialMobileOptions';
 $wgSpecialPages['MobileMenu'] = 'SpecialMobileMenu';
+$wgSpecialPages['Esi'] = 'SpecialEsi';
 
 function efMobileFrontend_Setup() {
 	global $wgExtMobileFrontend;
@@ -389,3 +391,10 @@ $wgMFTrademarkSitename = false;
  * Whether or not to enable Varnish ESI support
  */
 $wgMFUseESI = false;
+
+/**
+ * ESI chunk handlers
+ */
+$wgEsiHandlers = array(
+	'test' => function( IContextSource $context ) { echo 'Hi there, <b>world</b>!'; },
+);
