@@ -37,15 +37,6 @@ class ExtMobileFrontendTest extends MediaWikiTestCase {
 		$this->assertEquals( 'no-cache', $wgRequest->response()->getheader( 'Pragma' ) );
 	}
 
-	public function testSendXDeviceVaryHeader() {
-		global $wgExtMobileFrontend;
-		$sendXDeviceVaryHeader = self::getMethod( 'sendXDeviceVaryHeader' );
-		MobileContext::singleton()->getRequest()->setHeader( 'X-Device', 'device' );
-		$sendXDeviceVaryHeader->invokeArgs( $wgExtMobileFrontend, array() );
-		$this->assertEquals( 'device', MobileContext::singleton()->getRequest()->
-			response()->getheader( 'X-Device' ) );
-	}
-
 	/**
 	 * @group Broken
 	 */

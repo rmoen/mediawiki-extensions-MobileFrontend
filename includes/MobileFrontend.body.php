@@ -251,7 +251,7 @@ class ExtMobileFrontend extends ContextSource {
 		$this->setDefaultLogo();
 
 		$this->disableCaching();
-		$this->sendXDeviceVaryHeader();
+		$this->sendVaryHeaders();
 
 		wfProfileOut( __METHOD__ );
 		return true;
@@ -328,14 +328,9 @@ class ExtMobileFrontend extends ContextSource {
 		return true;
 	}
 
-	private function sendXDeviceVaryHeader() {
+	private function sendVaryHeaders() {
 		wfProfileIn( __METHOD__ );
 		$out = $this->getOutput();
-		$xDevice = MobileContext::singleton()->getXDevice();
-		if ( $xDevice !== '' ) {
-			$this->getRequest()->response()->header( "X-Device: {$xDevice}" );
-			$out->addVaryHeader( 'X-Device' );
-		}
 		$out->addVaryHeader( 'Cookie' );
 		$out->addVaryHeader( 'X-Carrier' );
 		$out->addVaryHeader( 'X-Subdomain' );
