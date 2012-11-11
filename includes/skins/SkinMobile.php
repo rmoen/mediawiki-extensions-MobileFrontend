@@ -5,7 +5,7 @@ class SkinMobile extends SkinMobileBase {
 	public $stylename = 'mobile';
 	public $template = 'SkinMobileTemplate';
 	private $resourceLoader;
-	private $esienabled = false;
+	private $esiEnabled = false;
 
 	public function __construct( ExtMobileFrontend $extMobileFrontend ) {
 		$this->setESI();
@@ -429,7 +429,7 @@ HTML;
 
 	public function setESI(){
 		global $wgMFUseESI;
-		$this->esienabled = $wgMFUseESI;
+		$this->esiEnabled = $wgMFUseESI;
 	}
 
 	/**
@@ -454,9 +454,8 @@ HTML;
 	 * If ESI support is enabled, this will output the appropriate esi:include tag.
 	 */
 	private function prepareViewportScalableOutput() {
-		if ( $this->esienabled ) {
-			$src = SpecialPage::getTitleFor( 'Esi', 'mf-viewport-scalable' )->getLocalURL();
-			return "<esi:include src='{$src}' />";
+		if ( $this->esiEnabled ) {
+			return Html::element( 'esi:include', array( 'src' => wfEsiLink( 'mf-viewport-scalable' ) ) );
 		} else {
 			return static::getViewportScalableOutput();
 		}

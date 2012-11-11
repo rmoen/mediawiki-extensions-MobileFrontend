@@ -211,6 +211,17 @@ $wgResourceModules['mobile.desktop'] = array(
 );
 
 /**
+ * Creates a link to an ESI chunk
+ *
+ * @param string $chunkName
+ * @param array $params
+ * @return string
+ */
+function wfEsiLink( $chunkName, $params = array() ) {
+	return SpecialPage::getTitleFor( 'Esi', $chunkName )->getLocalURL( $params );
+}
+
+/**
  * Begin configuration variables
  */
 
@@ -396,6 +407,5 @@ $wgMFUseESI = false;
  * ESI chunk handlers
  */
 $wgEsiHandlers = array(
-	'test' => function( IContextSource $context ) { echo 'Hi there, <b>world</b>!'; },
-	'mf-viewport-scalable' => "SkinMobile::viewportScalableEsiHandler",
+	'mf-viewport-scalable' => 'SkinMobile::viewportScalableEsiHandler',
 );

@@ -9,7 +9,7 @@ class SpecialEsi extends UnlistedSpecialPage {
 		global $wgEsiHandlers;
 
 		if ( !isset( $wgEsiHandlers[$par] ) ) {
-			throw new MWException( 'Unrecognised ESIchunk name' );
+			throw new MWException( 'Unrecognised ESI chunk name' );
 		}
 
 		$this->getOutput()->disable();
