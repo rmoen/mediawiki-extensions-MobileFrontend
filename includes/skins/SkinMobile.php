@@ -53,7 +53,6 @@ class SkinMobile extends SkinMobileBase {
 			"{$wgExtensionAssetsPath}/MobileFrontend/stylesheets/images/logo-copyright-{$wgLanguageCode}.png";
 
 		wfProfileIn( __METHOD__ . '-modules' );
-		$tpl->set( 'supports_jquery', $device['supports_jquery'] );
 		$styles = array();
 		$scripts = array();
 		if ( $inBeta ) {
