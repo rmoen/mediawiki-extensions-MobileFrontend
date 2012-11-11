@@ -335,6 +335,13 @@ class ExtMobileFrontend extends ContextSource {
 		$out->addVaryHeader( 'X-Carrier' );
 		$out->addVaryHeader( 'X-Subdomain' );
 		$out->addVaryHeader( 'X-Images' );
+
+		// Vary on wap-ness?
+		$wap = $this->getRequest()->getHeader( 'X-WAP' );
+		if ( $wap ) {
+			$this->getRequest()->response()->header( "X-WAP: {$wap}" );
+			$out->addVaryHeader( 'X-WAP' );
+		}
 		wfProfileOut( __METHOD__ );
 		return true;
 	}
