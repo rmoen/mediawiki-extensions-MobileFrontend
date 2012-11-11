@@ -407,5 +407,5 @@ $wgMFUseESI = false;
  * ESI chunk handlers
  */
 $wgEsiHandlers = array(
-	'mf-viewport-scalable' => 'SkinMobile::viewportScalableEsiHandler',
+	'mf-head' => 'SkinMobile::headEsiHandler',
 );
