@@ -24,7 +24,6 @@ class SkinMobile extends SkinMobileBase {
 		$tpl->set( 'shim', $wgExtensionAssetsPath . '/MobileFrontend/stylesheets/common/images/blank.gif' ); // defines a shim
 		$specialPage = $title->isSpecialPage();
 		$context = MobileContext::singleton();
-		$device = $context->getDevice();
 		$inBeta = $context->isBetaGroupMember();
 
 		$userLogin = $title->isSpecial( 'Userlogin' );
@@ -51,76 +50,9 @@ class SkinMobile extends SkinMobileBase {
 			$wgMFCustomLogos['copyright'] :
 			"{$wgExtensionAssetsPath}/MobileFrontend/stylesheets/images/logo-copyright-{$wgLanguageCode}.png";
 
-		wfProfileIn( __METHOD__ . '-modules' );
-		$styles = array();
-		$scripts = array();
-		if ( $inBeta ) {
-			$styles[] = 'mobile.beta';
-			$scripts[] = 'mobile.beta';
-			if( $device['supports_jquery'] ) {
-				$styles[] = 'mobile.beta.jquery';
-				$scripts[] = 'mobile.beta.jquery';
-				if ( $wgMFLogEvents ) {
-					$scripts[] = 'mobile.beta.jquery.eventlog';
-				}
-			}
-		} else {
-			$styles[] = 'mobile';
-			$scripts[] = 'mobile';
-			$styles[] = 'mobile.production-only';
-			$scripts[] = 'mobile.production-only';
-		}
-		$styles[] = "mobile.device.{$device['css_file_name']}";
-		$styles[] = 'mobile.production-jquery';
-		$styleLinks = array( $this->resourceLoaderLink( $styles, 'styles' ) );
-		$isFilePage = $title->getNamespace() == NS_FILE;
-		if ( $isFilePage ) {
-			$styleLinks[] = $this->resourceLoaderLink( 'mobile.filePage', 'styles' );
-		}
-		$styleLinks[] = $this->resourceLoaderLink( array( 'mobile.site' ), 'styles', false );
-		$tpl->set( 'cssLinks', implode( "\n", $styleLinks ) );
-		wfProfileOut( __METHOD__ . '-modules' );
-
 		$tpl->setRef( 'wgAppleTouchIcon', $wgAppleTouchIcon );
-
-		if ( $device['supports_jquery'] ) {
-			$scripts[] = 'mobile.production-jquery';
-		}
-		$scriptLinks = array();
-		if ( $device['supports_jquery'] ) {
-			global $wgMFEnableResourceLoader;
-			if ( $inBeta && $wgMFEnableResourceLoader ) {
-				// Initialize ResourceLoader, targeted to mobile...
-				$scriptLinks[] = $this->resourceLoaderLink( 'startup', 'scripts', true, true, 'mobile' );
-				$modules = $this->getOutput()->getModules( true );
-				if ( $modules ) {
-					// Load ResourceLoader modules
-					$scriptLinks[] = Html::inlineScript(
-						ResourceLoader::makeLoaderConditionalScript(
-							Xml::encodeJsCall( 'mw.loader.load', array( $modules ) )
-						)
-					);
-				}
-			} else {
-				// Not beta or RL mode disabled; use old method of loading jquery.
-				$scriptLinks[] = $this->resourceLoaderLink( 'jquery', 'scripts', true, true );
-				global $wgResponsiveImages;
-				if ( $wgResponsiveImages ) {
-					$scriptLinks[] = $this->resourceLoaderLink( array( 'jquery.hidpi', '
-mediawiki.hidpi' ), 'scripts', true, true );
-				}
-			}
-		}
-		$scriptLinks[] = $this->resourceLoaderLink( $scripts, 'scripts' );
-		if ( $isFilePage ) {
-			$scriptLinks[] = $this->resourceLoaderLink( 'mobile.filePage', 'scripts' );
-		}
-		$scriptLinks[] = $this->resourceLoaderLink( array( 'mobile.site' ), 'scripts', false );
-		$bottomScripts = implode( "\n", $scriptLinks );
-		$tpl->set( 'bottomScripts', $device['supports_javascript'] ? $bottomScripts : '' );
-
 		$tpl->set( 'esiHead', $this->prepareESIHeadOutput() );
-
+		$tpl->set( 'esiBottomScripts', $this->prepareESIBottomScriptsOutput() );
 		$tpl->set( 'stopMobileRedirectCookieName', 'stopMobileRedirect' );
 		$tpl->set( 'stopMobileRedirectCookieDuration', $context->getUseFormatCookieDuration() );
 		$tpl->set( 'stopMobileRedirectCookieDomain', $context->getStopMobileRedirectCookieDomain() );
@@ -432,28 +364,59 @@ HTML;
 	 * Generate and echo HTML necessary for enabling/disabling user-scalable viewport
 	 */
 	private function getESIHeadOutput() {
+		wfProfileIn( __METHOD__ );
 		$context = MobileContext::singleton();
 		$device = $context->getDevice();
+		$inBeta = $context->isBetaGroupMember();
+		$title = $context->getTitle();
 
 		// viewport scalable?
 		$viewportScalable = $device['disable_zoom'] ? 'no' : 'yes';
 
 		// preamble scripts
-		$headLinks = array();
-		$headLinks[] = $this->resourceLoaderLink( array( '' => 'mobile.head' ), 'scripts' );
-		$preamble = implode( "\n", $headLinks );
-		$preambleScript = $device['supports_javascript'] ? $preamble : '';
+		if ( !$device['supports_javascript'] ) {
+			$preambleScript = '';
+		} else {
+			$headLinks = array();
+			$headLinks[] = $this->resourceLoaderLink( array( '' => 'mobile.head' ), 'scripts' );
+			$preambleScript = implode( "\n", $headLinks );
+		}
+
+		// styles
+		$styles = array();
+		if ( $inBeta ) {
+			$styles[] = 'mobile.beta';
+			if( $device['supports_jquery'] ) {
+				$styles[] = 'mobile.beta.jquery';
+			}
+		} else {
+			$styles[] = 'mobile';
+			$styles[] = 'mobile.production-only';
+		}
+		$styles[] = "mobile.device.{$device['css_file_name']}";
+		$styles[] = 'mobile.production-jquery';
+		$styleLinks = array( $this->resourceLoaderLink( $styles, 'styles' ) );
+
+		$isFilePage = $title->getNamespace() == NS_FILE;
+		if ( $isFilePage ) {
+			$styleLinks[] = $this->resourceLoaderLink( 'mobile.filePage', 'styles' );
+		}
+		$styleLinks[] = $this->resourceLoaderLink( array( 'mobile.site' ), 'styles', false );
+
 
 		$out = "<meta name='viewport' content='initial-scale=1.0, user-scalable={$viewportScalable}'>";
 		$out .= $preambleScript;
+		$out .= implode( "\n", $styleLinks );
 
+		wfProfileOut( __METHOD__  );
 		return $out;
 	}
 
+	/**
+	 * ESI chunk handler for esi-able <head> output
+	 */
 	public static function headEsiHandler() {
-		global $wgExtMobileFrontend;
-		$sk = SkinMobile::factory( $wgExtMobileFrontend );
-		$sk->varyXDevice();
+		$sk = static::getSkinForESI( true );
 		echo $sk->getESIHeadOutput();
 	}
 
@@ -470,6 +433,84 @@ HTML;
 		}
 	}
 
+	private function getESIBottomScriptsOutput() {
+		global $wgMFEnableResourceLoader, $wgResponsiveImages, $wgMFLogEvents;
+		wfProfileIn( __METHOD__  );
+		$context = MobileContext::singleton();
+		$device = $context->getDevice();
+		// early return if device does not support javascript
+		if ( !$device['supports_javascript'] ) {
+			wfProfileOut( __METHOD__  );
+			return '';
+		}
+		$inBeta = $context->isBetaGroupMember();
+		$title = $context->getTitle();
+
+		// scripts
+		$scripts = array();
+		if ( $inBeta ) {
+			$scripts[] = 'mobile.beta';
+			if( $device['supports_jquery'] ) {
+				$scripts[] = 'mobile.beta.jquery';
+				if ( $wgMFLogEvents ) {
+					$scripts[] = 'mobile.beta.jquery.eventlog';
+				}
+			}
+		} else {
+			$scripts[] = 'mobile';
+			$scripts[] = 'mobile.production-only';
+		}
+
+		if ( $device['supports_jquery'] ) {
+			$scripts[] = 'mobile.production-jquery';
+		}
+		$scriptLinks = array();
+		if ( $device['supports_jquery'] ) {
+			if ( $inBeta && $wgMFEnableResourceLoader ) {
+				// Initialize ResourceLoader, targeted to mobile...
+				$scriptLinks[] = $this->resourceLoaderLink( 'startup', 'scripts', true, true, 'mobile' );
+				$modules = $this->getOutput()->getModules( true );
+				if ( $modules ) {
+					// Load ResourceLoader modules
+					$scriptLinks[] = Html::inlineScript(
+						ResourceLoader::makeLoaderConditionalScript(
+							Xml::encodeJsCall( 'mw.loader.load', array( $modules ) )
+						)
+					);
+				}
+			} else {
+				// Not beta or RL mode disabled; use old method of loading jquery.
+				$scriptLinks[] = $this->resourceLoaderLink( 'jquery', 'scripts', true, true );
+				if ( $wgResponsiveImages ) {
+					$scriptLinks[] = $this->resourceLoaderLink( array( 'jquery.hidpi', '
+mediawiki.hidpi' ), 'scripts', true, true );
+				}
+			}
+		}
+		$scriptLinks[] = $this->resourceLoaderLink( $scripts, 'scripts' );
+		$isFilePage = $title->getNamespace() == NS_FILE;
+		if ( $isFilePage ) {
+			$scriptLinks[] = $this->resourceLoaderLink( 'mobile.filePage', 'scripts' );
+		}
+		$scriptLinks[] = $this->resourceLoaderLink( array( 'mobile.site' ), 'scripts', false );
+		$bottomScripts = implode( "\n", $scriptLinks );
+		wfProfileOut( __METHOD__  );
+		return $bottomScripts;
+	}
+
+	public static function bottomScriptsEsiHandler() {
+		$sk = static::getSkinForESI( true );
+		echo $sk->getESIBottomScriptsOutput();
+	}
+
+	private function prepareESIBottomScriptsOutput() {
+		if ( $this->esiEnabled ) {
+			return Html::element( 'esi:include', array( 'src' => wfEsiLink( 'mf-bottom-scripts' ) ) );
+		} else {
+			return $this->getESIBottomScriptsOutput();
+		}
+	}
+
 	/**
 	 * Ensures that we vary on X-Device
 	 */
@@ -477,6 +518,20 @@ HTML;
 		$out = $this->getOutput();
 		$out->addVaryHeader( 'X-Device' );
 		$out->sendCacheControl();
+	}
+
+	/**
+	 * Fetch a SkinMobile object for use in static ESI methods
+	 * @param bool
+	 * @return SkinMobile
+	 */
+	public static function getSkinForESI( $varyXDevice = false ) {
+		global $wgExtMobileFrontend;
+		$sk = SkinMobile::factory( $wgExtMobileFrontend );
+		if ( $varyXDevice ) {
+			$sk->varyXDevice();
+		}
+		return $sk;
 	}
 }
 
@@ -541,7 +596,6 @@ class SkinMobileTemplate extends BaseTemplate {
 		<title><?php $this->text( 'pagetitle' ) ?></title>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<?php $this->html( 'robots' ) ?>
-		<?php $this->html( 'cssLinks' ) ?>
 
 		<?php $this->html( 'touchIcon' ) ?>
 		<script type="text/javascript">
@@ -575,7 +629,7 @@ class SkinMobileTemplate extends BaseTemplate {
 		?>
 
 		<?php $this->html( 'bcHack' ) ?>
-		<?php $this->html( 'bottomScripts' ) ?>
+		<?php $this->html( 'esiBottomScripts' ) ?>
 	</body>
 	</html><?php
 	}

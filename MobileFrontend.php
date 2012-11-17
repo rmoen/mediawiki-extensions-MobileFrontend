@@ -408,4 +408,5 @@ $wgMFUseESI = false;
  */
 $wgEsiHandlers = array(
 	'mf-head' => 'SkinMobile::headEsiHandler',
+	'mf-bottom-scripts' => 'SkinMobile::bottomScriptsEsiHandler',
 );
