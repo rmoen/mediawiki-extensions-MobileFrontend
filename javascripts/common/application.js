@@ -302,7 +302,7 @@
 		getOrigin: getOrigin,
 		// FIXME: No Page object exists on initial page load but would be better to make this a function of Page object
 		getLeadSection: function() {
-			return $( '#content div' ).eq( 0 );
+			return $( '#content > div > div' ).eq( 0 );
 		},
 		getSessionId: getSessionId,
 		isWideScreen: isWideScreen,
