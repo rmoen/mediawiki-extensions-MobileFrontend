@@ -15,7 +15,6 @@ FIXME: Rename section_heading to section-heading and content_block to section-co
 .client-js {
 	.section_heading,
 	.content_block {
-		border-bottom: solid 1px @sectionBorderColor;
 		clear: both;
 	}
 
@@ -24,12 +23,11 @@ FIXME: Rename section_heading to section-heading and content_block to section-co
 		.background-image('images/show.png');
 		background-position: left 1.05;
 		padding-left: 24px;
-		cursor: pointer;
+		border-bottom: solid 1px @sectionBorderColor;
 
 		&.openSection {
 			.background-image('images/hide.png');
 			padding-right: @sectionIconWidth + 15px;
-			border-bottom: solid 1px @sectionBorderColor;
 			margin-bottom: @headingMargin;
 		}
 	}
