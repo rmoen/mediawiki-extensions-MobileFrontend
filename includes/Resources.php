@@ -171,6 +171,9 @@ $wgResourceModules = array_merge( $wgResourceModules, array(
 		'messages' => array(
 			'mobile-frontend-language-article-heading',
 		),
+		'templates' => array(
+			'section.hogan',
+		),
 		'scripts' => array(
 			'javascripts/Router.js',
 			'javascripts/OverlayManager.js',
