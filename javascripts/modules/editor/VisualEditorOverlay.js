@@ -109,7 +109,7 @@
 			var
 				self = this,
 				doc = this.target.surface.getModel().getDocument(),
-				summary = this.$( '.save-panel input' ).val(),
+				summary = this.$( '.save-panel .summary' ).val(),
 				options = { summary: summary };
 
 			EditorOverlayBase.prototype._save.apply( this, arguments );
