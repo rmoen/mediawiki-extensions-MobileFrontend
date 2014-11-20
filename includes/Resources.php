@@ -960,8 +960,9 @@ $wgResourceModules = array_merge( $wgResourceModules, array(
 	// See https://www.mediawiki.org/wiki/Extension:MobileFrontend/WikiGrok
 	'mobile.wikigrok.dialog' => $wgMFResourceFileModuleBoilerplate + array(
 		'dependencies' => array(
+			'mobile.startup',
 			'mobile.overlays',
-			'mobile.alpha',
+			'mobile.loggingSchemas',
 			'mobile.wikigrok.api',
 		),
 		'templates' => array(
