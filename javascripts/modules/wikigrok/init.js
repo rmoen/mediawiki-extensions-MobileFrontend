@@ -67,8 +67,8 @@
 	}
 
 	if (
-		// WikiGrok is enabled
-		mw.config.get( 'wgMFEnableWikiGrok' ) &&
+		// WikiGrok is enabled and configured for this user
+		versionConfig &&
 		// We're not on the Main Page
 		!mw.config.get( 'wgIsMainPage' ) &&
 		// Permitted on this device
@@ -78,8 +78,7 @@
 		// Wikibase is active and this page has an item ID
 		wikidataID &&
 		// We're in Main namespace,
-		mw.config.get( 'wgNamespaceNumber' ) === 0 &&
-		versionConfig
+		mw.config.get( 'wgNamespaceNumber' ) === 0
 	) {
 
 		// Load the required module and view based on the version for the user
