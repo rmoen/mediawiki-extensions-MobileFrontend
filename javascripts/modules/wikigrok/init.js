@@ -1,8 +1,5 @@
 // Determine whether or not it is appropriate to load WikiGrok, and if so, load it.
 ( function ( M, $ ) {
-	// Only run in alpha or beta mode
-	M.assertMode( [ 'beta', 'alpha' ] );
-
 	var wikidataID = mw.config.get( 'wgWikibaseItemId' ),
 		errorSchema = M.require( 'loggingSchemas/mobileWebWikiGrokError' ),
 		settings = M.require( 'settings' ),
