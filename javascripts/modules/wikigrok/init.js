@@ -24,7 +24,7 @@
 		WikiGrokAbTest = M.require( 'WikiGrokAbTest' ),
 		wikiGrokUser = M.require( 'wikiGrokUser' );
 
-	/*
+	/**
 	 * Checks whether the user has already seen and responded to a WikiGrok question
 	 * before on this article and device.
 	 */
@@ -40,7 +40,7 @@
 		return result;
 	}
 
-	/*
+	/**
 	 * Gets the configuration for the version of WikiGrok to use.
 	 *
 	 * The `wikigrokversion` query parameter can be used to override this logic,
@@ -84,9 +84,11 @@
 	}
 
 	if (
-		// Show WikiGrok if the user hasn't already contributed to it on this page before
-		// or they are testing WikiGrok (by using the query string override)
-		( !hasUserAlreadyContributedToWikiGrok() || idOverride ) &&
+		// User is not anonymous or we have enabled WikiGrok for anonymous users
+		( !mw.user.isAnon() || mw.config.get( 'wgMFEnableWikiGrokForAnons' ) ) &&
+		// User hasn't already contributed through WikiGrok on this page before or they
+		// are testing WikiGrok (by using the query string overrides)
+		( !hasUserAlreadyContributedToWikiGrok() || M.query.wikidataid || M.query.wikigrokversion ) &&
 		// WikiGrok is enabled and configured for this user
 		versionConfig &&
 		// We're not on the Main Page
