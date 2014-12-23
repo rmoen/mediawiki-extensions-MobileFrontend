@@ -367,12 +367,10 @@
 
 		/**
 		 * Checks whether the existing content has changed.
-		 * FIXME: Make method of EditorApi
-		 * @uses EditorApi
-		 * @private
+		 * @method
 		 * @return {Boolean}
 		 */
-		_hasChanged: function () {
+		hasChanged: function () {
 			return this.api.hasChanged;
 		}
 	} );
