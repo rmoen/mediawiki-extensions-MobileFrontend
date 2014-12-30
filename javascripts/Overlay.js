@@ -204,6 +204,10 @@
 				$window.off( '.ios' );
 			}
 
+			/**
+			 * @event hide
+			 * Fired when the overlay is closed.
+			 */
 			this.emit( 'hide' );
 
 			return true;
